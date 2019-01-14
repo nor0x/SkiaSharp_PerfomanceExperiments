@@ -67,7 +67,6 @@ namespace SkiaPlayground
         {
             e.Surface.Canvas.Clear(SKColors.Black);
             e.Surface.Canvas.SetMatrix(_m);
-            e.Surface.Canvas.Clear(SKColors.LightGray);
 
             for(int i = 0; i < imgs.Count; i++)
             {
