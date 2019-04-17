@@ -23,7 +23,7 @@ namespace SkiaPlayground
         bool _isPanZoom = false;
         SKPoint _totalDistance;
         SKSize _canvasSize;
-        List<SKBitmap> imgs = new List<SKBitmap>();
+        List<SKImage> imgs = new List<SKImage>();
         List<SKRect> rects = new List<SKRect>();
         Random rand = new Random();
 
@@ -59,7 +59,7 @@ namespace SkiaPlayground
 
                 rect.Location = new SKPoint((float)pointRandomW, (float)pointRandomH);
                 rects.Add(rect);
-                imgs.Add(img.ToSKBitmap());
+                imgs.Add(img.ToSKImage());
             }
         }
 
@@ -70,7 +70,11 @@ namespace SkiaPlayground
 
             for(int i = 0; i < imgs.Count; i++)
             {
-                e.Surface.Canvas.DrawBitmap(imgs.ElementAt(i), rects.ElementAt(i), HighQualityImagePaint);
+                //e.Surface.Canvas.DrawBitmap(imgs.ElementAt(i), rects.ElementAt(i), HighQualityImagePaint);
+                using (var paint = new SKPaint() { FilterQuality = SKFilterQuality.High, IsAntialias = true })
+                {
+                    e.Surface.Canvas.DrawImage(imgs.ElementAt(i), rects.ElementAt(i), paint);
+                }
             }
         }
 
