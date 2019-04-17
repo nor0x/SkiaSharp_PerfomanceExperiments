@@ -67,14 +67,30 @@ namespace SkiaPlayground
         {
             e.Surface.Canvas.Clear(SKColors.Black);
             e.Surface.Canvas.SetMatrix(_m);
-
-            for(int i = 0; i < imgs.Count; i++)
+            for (int i = 0; i < imgs.Count; i++)
             {
                 //e.Surface.Canvas.DrawBitmap(imgs.ElementAt(i), rects.ElementAt(i), HighQualityImagePaint);
-                using (var paint = new SKPaint() { FilterQuality = SKFilterQuality.High, IsAntialias = true })
+                using (var paint = new SKPaint() { FilterQuality = GetDynamicFilterQuality(_m.ScaleX), IsAntialias = true })
                 {
+                    System.Diagnostics.Debug.WriteLine(paint.FilterQuality);
                     e.Surface.Canvas.DrawImage(imgs.ElementAt(i), rects.ElementAt(i), paint);
                 }
+            }
+        }
+
+        SKFilterQuality GetDynamicFilterQuality(double scale)
+        { 
+            if(scale < 0.2)
+            {
+                return SKFilterQuality.Low;
+            }
+            else if(scale < 0.2 && scale > 0.7)
+            {
+                return SKFilterQuality.Medium;
+            }
+            else
+            {
+                return SKFilterQuality.High;
             }
         }
 
