@@ -7,9 +7,6 @@
     mc:Ignorable="d" 
     xmlns:skia="clr-namespace:SkiaSharp.Views.Forms;assembly=SkiaSharp.Views.Forms"
     x:Class="SkiaXFPlayground.MainPage">
-    <skia:SKGLView PaintSurface="Handle_PaintSurface">
-        <skia:SKGLView.GestureRecognizers>
-            <TapGestureRecognizer Tapped="Handle_Tapped" />
-        </skia:SKGLView.GestureRecognizers>
-    </skia:SKGLView>
+    <skia:SKGLView x:Name="SkiaView" PaintSurface="Handle_PaintSurface" />
+
 </ContentPage>
