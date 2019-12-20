@@ -55,11 +55,19 @@ namespace SkiaXFPlayground
                     buffer = new byte[length];
                     s.Read(buffer, 0, (int)length);
 #if USE_BITMAP
-                    var img = new MyImage() { Location = new SKPoint(300, 300), Image = SKBitmap.Decode(buffer) };
+                    var img1 = new MyImage() { Location = new SKPoint(0, 0), Image = SKBitmap.Decode(buffer) };
+                    var img2 = new MyImage() { Location = new SKPoint(300, 300), Image = SKBitmap.Decode(buffer) };
+                    var img3 = new MyImage() { Location = new SKPoint(600, 600), Image = SKBitmap.Decode(buffer) };
 #else
-                    var img = new MyImage() { Location = new SKPoint(300, 300), Image = SKImage.FromEncodedData(buffer) };
+
+                    var img1 = new MyImage() { Location = new SKPoint(0, 0), Image = SKImage.FromEncodedData(buffer) };
+                    var img2 = new MyImage() { Location = new SKPoint(300, 300), Image = SKImage.FromEncodedData(buffer) };
+                    var img3 = new MyImage() { Location = new SKPoint(600, 600), Image = SKImage.FromEncodedData(buffer) };
+
 #endif
-                    _images.Add(img);
+                    _images.Add(img1);
+                    _images.Add(img2);
+                    _images.Add(img3);
                 }
             }
         }
@@ -96,18 +104,13 @@ namespace SkiaXFPlayground
             }
         }
 
-        float GetMagnitude(SKPoint p)
-        {
-            return (float)Math.Sqrt(Math.Pow(p.X, 2) + Math.Pow(p.Y, 2));
-        }
-
         void Handle_PaintSurface(object sender, SkiaSharp.Views.Forms.SKPaintGLSurfaceEventArgs e)
         {
+
             e.Surface.Canvas.SetMatrix(_currentMatrix);
             e.Surface.Canvas.Clear(SKColors.SeaGreen);
-            using (SKPaint p = new SKPaint { IsAntialias = true, StrokeWidth = 2, Typeface = SKTypeface.FromFamilyName("default"), TextSize = 100, FilterQuality = SKFilterQuality.None})
+            using (SKPaint p = new SKPaint { IsAntialias = true, StrokeWidth = 2, Typeface = SKTypeface.FromFamilyName("default"), TextSize = 100, FilterQuality = SKFilterQuality.High})
             {
-                e.Surface.Canvas.DrawText("hello world :-)", 100, 100, p);
                 foreach(var img in _images)
                 {
 #if USE_BITMAP
@@ -116,6 +119,8 @@ namespace SkiaXFPlayground
                     e.Surface.Canvas.DrawImage(img.Image, img.Location, p);
 #endif
                 }
+                e.Surface.Canvas.DrawText("hello world :-)", 100, 100, p);
+
             }
         }
     }
