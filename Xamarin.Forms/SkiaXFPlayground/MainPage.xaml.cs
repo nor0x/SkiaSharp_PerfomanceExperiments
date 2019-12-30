@@ -14,6 +14,7 @@ using Xamarin.Forms;
 
 namespace SkiaXFPlayground
 {
+
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
@@ -27,6 +28,10 @@ namespace SkiaXFPlayground
         double _deviceScaleFactor = 2;
         double currentScale = 1;
         double startScale = 1;
+        string logtext = "";
+        int imagesize = 1000;
+
+        float matrixScale = 0.28f;
 
         List<MyImage> _images;
 
@@ -39,68 +44,94 @@ namespace SkiaXFPlayground
             var pinch = new PinchGestureRecognizer();
             pinch.PinchUpdated += Pinch_PinchUpdated;
             SkiaView.GestureRecognizers.Add(pinch);
-            
+
             SkiaView.EnableTouchEvents = true;
             SkiaView.Touch += SkiaView_Touch;
 
             var assembly = typeof(MainPage).GetTypeInfo().Assembly; // you can replace "this.GetType()" with "typeof(MyType)", where MyType is any type in your assembly.
-            byte[] buffer;
-            var names = assembly.GetManifestResourceNames();
-            using (Stream s = assembly.GetManifestResourceStream("SkiaXFPlayground.nasa.jpg"))
+            List<byte[]> buffer = new List<byte[]>();
+            for (int i = 0; i < 24; i++)
             {
-                if (s != null)
+                var names = assembly.GetManifestResourceNames();
+                using (Stream s = assembly.GetManifestResourceStream("SkiaXFPlayground.img" + i + ".jpg"))
                 {
-                    long length = s.Length;
-                    buffer = new byte[length];
-                    s.Read(buffer, 0, (int)length);
-                    var x = 0;
-                    var y = 0;
-                    var size = 300;
-#if USE_BITMAP
-                    var im = SKBitmap.Decode(buffer);
-                    for (int i = 0; i < 20; i++)
+                    if (s != null)
                     {
-                      var img = new MyImage()
-                        {
-                            Image = im
-                        };
-                        img.Destination = new SKRect(x, y, x + size, y + size);
-                        if (i % 10 == 0)
-                        {
-                            x = 0;
-                            y += size;
-                        }
-                        else
-                        {
-                            x += size + 10;
-                        }
-                        _images.Add(img);
+                        long length = s.Length;
+                        var b = new byte[length];
+                        s.Read(b, 0, (int)length);
+                        buffer.Add(b);
+
                     }
+                }
+                logtext = "image: " + i;
+            }
+            logtext = "buffering finished";
+            var rand = new Random();
+            var x = 0;
+            var y = 0;
+
+
+#if USE_BITMAP
+            for (int i = 1; i < 50; i++)
+            {
+                var index = rand.Next(0, buffer.Count());
+
+                var im = SKBitmap.Decode(buffer.ElementAt(index));
+
+                var img = new MyImage()
+                {
+                    Image = im
+                };
+                img.Destination = new SKRect(x, y, x + imagesize, y + imagesize);
+                if (i % 40 == 0)
+                {
+                    x = 0;
+                    y += imagesize + 10;
+                }
+                else
+                {
+                    x += imagesize + 10;
+                }
+                _images.Add(img);
+                logtext = "image added " + i;
+
+            }
+            logtext = "decoding finished " + _images.Count;
 
 #else
-                    var im = SKImage.FromEncodedData(buffer);
-                    for (int i = 1; i < 1001; i++)
-                    {
-                        var img = new MyImage()
-                        {
-                            Image = im
-                        };
-                        img.Destination = new SKRect(x, y, x + size, y + size);
-                        if (i % 40 == 0)
-                        {
-                            x = 0;
-                            y += size + 10;
-                        }
-                        else
-                        {
-                            x += size + 10;
-                        }
-                        _images.Add(img);
-                    }
+
+
+            for (int i = 1; i < 9 ; i++)
+            {
+                var index = rand.Next(0, buffer.Count());
+
+                var im = SKImage.FromEncodedData(buffer.ElementAt(i));
+
+                var img = new MyImage()
+                {
+                    Image = im
+                };
+                img.Destination = new SKRect(x, y, x + imagesize, y + imagesize);
+                if (i % 40 == 0)
+                {
+                    x = 0;
+                    y += imagesize + 10;
+                }
+                else
+                {
+                    x += imagesize + 10;
+                }
+                _images.Add(img);
+                logtext = "image added " + i;
+
+            }
+            logtext = "decoding finished " + _images.Count;
+
 
 #endif
-                }
-            }
+
+
         }
 
         private void SkiaView_Touch(object sender, SkiaSharp.Views.Forms.SKTouchEventArgs e)
@@ -138,17 +169,36 @@ namespace SkiaXFPlayground
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            if (SkiaView.GRContext != null)
-            {
-                SkiaView.GRContext.SetResourceCacheLimits(200, 1024000000);
-            }
+            
+
         }
 
 
         Stopwatch sw = Stopwatch.StartNew();
         TimeSpan last;
-        void Handle_PaintSurface(object sender, SkiaSharp.Views.Forms.SKPaintGLSurfaceEventArgs e)
+
+
+        void Handle_PaintSurface(object sender, SkiaSharp.Views.Forms.SKPaintSurfaceEventArgs e)
         {
+            /*
+            if (SkiaView.GRContext != null)
+            {
+                SkiaView.GRContext.SetResourceCacheLimits(500, 1024000000);
+                int li = 0;
+                long maxre = 0;
+                SkiaView.GRContext.GetResourceCacheLimits(out li, out maxre);
+
+                int cli = 0;
+                long cmaxre = 0;
+                SkiaView.GRContext.GetResourceCacheUsage(out cli, out cmaxre);
+                System.Diagnostics.Debug.WriteLine("limits: " + li + " \t" + maxre);
+                System.Diagnostics.Debug.WriteLine("usage : " + cli + " \t" + cmaxre);
+
+
+            }
+            */
+            logtext = "scale: " + _currentMatrix.ScaleX;
+
             e.Surface.Canvas.SetMatrix(_currentMatrix);
             e.Surface.Canvas.Clear(SKColors.DarkGray);
             using (SKPaint p = new SKPaint { IsAntialias = true, StrokeWidth = 2, Typeface = SKTypeface.FromFamilyName("default"), TextSize = 100, FilterQuality = SKFilterQuality.High})
@@ -159,6 +209,7 @@ namespace SkiaXFPlayground
                     e.Surface.Canvas.DrawBitmap(img.Image, img.Destination, p);
 #else
                     e.Surface.Canvas.DrawImage(img.Image, img.Destination, p);
+
 #endif
                 }
                 var c = sw.Elapsed;
@@ -169,7 +220,7 @@ namespace SkiaXFPlayground
                 var fpsString = fps.ToString("00.00");
                 e.Surface.Canvas.ResetMatrix();
                 e.Surface.Canvas.DrawText("FPS: " + fpsString, 100, 100, p);
-
+                e.Surface.Canvas.DrawText("log: " + logtext, 100,200, p);
             }
         }
     }
