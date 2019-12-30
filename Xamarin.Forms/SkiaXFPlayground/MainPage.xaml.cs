@@ -178,9 +178,9 @@ namespace SkiaXFPlayground
         TimeSpan last;
 
 
-        void Handle_PaintSurface(object sender, SkiaSharp.Views.Forms.SKPaintSurfaceEventArgs e)
+        void Handle_PaintSurface(object sender, SkiaSharp.Views.Forms.SKPaintGLSurfaceEventArgs e)
         {
-            /*
+            
             if (SkiaView.GRContext != null)
             {
                 SkiaView.GRContext.SetResourceCacheLimits(500, 1024000000);
@@ -196,7 +196,7 @@ namespace SkiaXFPlayground
 
 
             }
-            */
+            
             logtext = "scale: " + _currentMatrix.ScaleX;
 
             e.Surface.Canvas.SetMatrix(_currentMatrix);

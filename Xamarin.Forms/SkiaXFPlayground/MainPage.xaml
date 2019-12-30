@@ -7,6 +7,6 @@
     mc:Ignorable="d" 
     xmlns:skia="clr-namespace:SkiaSharp.Views.Forms;assembly=SkiaSharp.Views.Forms"
     x:Class="SkiaXFPlayground.MainPage">
-    <skia:SKCanvasView x:Name="SkiaView" PaintSurface="Handle_PaintSurface" />
+    <skia:SKGLView x:Name="SkiaView" PaintSurface="Handle_PaintSurface" />
 
 </ContentPage>
