@@ -7,6 +7,48 @@
     mc:Ignorable="d" 
     xmlns:skia="clr-namespace:SkiaSharp.Views.Forms;assembly=SkiaSharp.Views.Forms"
     x:Class="SkiaXFPlayground.MainPage">
-    <skia:SKGLView x:Name="SkiaView" PaintSurface="Handle_PaintSurface" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="100" />
+        </Grid.RowDefinitions>
+            <skia:SKGLView x:Name="SkiaView" Grid.Row="0" PaintSurface="Handle_PaintSurface" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" />
+            <StackLayout  Grid.Row="1">
+                <StackLayout Orientation="Horizontal">
+                    <StackLayout Orientation="Horizontal">
+                        <Label Text="FPS:" />
+                        <Entry x:Name="FPSLabel" Text="0" IsReadOnly="True" WidthRequest="120"/>
+                    </StackLayout>
+                    <StackLayout Orientation="Horizontal">
+                        <Label Text="SCALE:" />
+                        <Entry x:Name="ScaleLabel" Text="0" IsReadOnly="True" WidthRequest="120" />
+                    </StackLayout>
+                    <Button x:Name="AddImage" Text="+ Image" Clicked="AddImage_Clicked" />
+                    <Button x:Name="RemoveImage" Text="- Image" Clicked="RemoveImage_Clicked" />
+                    <StackLayout Orientation="Horizontal">
+                        <Label Text="FILTER QUALITY:" />
+                        <Picker x:Name="QualityPicker" SelectedIndexChanged="Quality_SelectedIndexChanged">
+                              <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                  <x:String>None</x:String>
+                                  <x:String>Low</x:String>
+                                  <x:String>Medium</x:String>
+                                  <x:String>High</x:String>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+                    </StackLayout>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Resource number:" />
+                    <Entry x:Name="NumberLabel" Text="0" IsReadOnly="True" WidthRequest="70" />
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Resource usage:" />
+                    <Entry x:Name="UsageLabel" Text="0" IsReadOnly="True" WidthRequest="250" />
+                </StackLayout>
+                <Label x:Name="LogLabel" FontSize="12" FontFamily="mono" />
+            </StackLayout>
+    </Grid>
 
 </ContentPage>
