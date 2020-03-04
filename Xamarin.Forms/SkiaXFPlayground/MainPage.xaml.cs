@@ -33,7 +33,7 @@ namespace SkiaXFPlayground
         long resourceLimitBytes = 100000000;
 
         string logtext = "";
-        int imagesize = 300;
+        int imagesize = 7000;
         int _padding = 20;
         int _numberOfImages = 0;
         float dragX;
@@ -64,7 +64,6 @@ namespace SkiaXFPlayground
             var pinch = new PinchGestureRecognizer();
             pinch.PinchUpdated += Pinch_PinchUpdated;
             SkiaView.GestureRecognizers.Add(pinch);
-
             SkiaView.EnableTouchEvents = true;
             SkiaView.Touch += SkiaView_Touch;
 
@@ -140,7 +139,7 @@ namespace SkiaXFPlayground
             else if (e.Status == Xamarin.Forms.GestureStatus.Running)
             {
                 currentScale += (e.Scale - 1) * startScale;
-                currentScale = Math.Max(0.03, currentScale);
+                currentScale = Math.Max(0.003, currentScale);
                 _currentMatrix.ScaleX = (float)currentScale;
                 _currentMatrix.ScaleY = (float)currentScale;
                 SkiaView.InvalidateSurface();
@@ -198,14 +197,14 @@ namespace SkiaXFPlayground
         void AddImage_Clicked(System.Object sender, System.EventArgs e)
         {
             var index = rand.Next(0, _buffer.Count());
-            index = 0;
-            var im = SKImage.FromEncodedData(_buffer.ElementAt(index));
+            index = 13;
+            var im = SKImage.FromEncodedData(_buffer.ElementAt(index)).ToTextureImage(SkiaView.GRContext);
 
             var img = new MyImage()
             {
                 Image = im
             };
-            if (_numberOfImages % 5 == 0)
+            if (_numberOfImages % 10 == 0)
             {
                 _lastX = 0;
                 _lastY += imagesize + 10;

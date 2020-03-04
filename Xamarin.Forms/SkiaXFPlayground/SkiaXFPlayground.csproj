@@ -10,9 +10,9 @@
     <ItemGroup>
         <PackageReference Include="Xamarin.Forms" Version="4.4.0.991640" />
         <PackageReference Include="Xamarin.Essentials" Version="1.3.1" />
-        <PackageReference Include="SkiaSharp" Version="1.68.1.1" />
-        <PackageReference Include="SkiaSharp.Views.Forms" Version="1.68.1.1" />
-        <PackageReference Include="SkiaSharp.Views" Version="1.68.1.1" />
+        <PackageReference Include="SkiaSharp" Version="1.68.2-preview.39" />
+        <PackageReference Include="SkiaSharp.Views.Forms" Version="1.68.2-preview.39" />
+        <PackageReference Include="SkiaSharp.Views" Version="1.68.2-preview.39" />
     </ItemGroup>
     <ItemGroup>
         <None Remove="img0.jpg" />
