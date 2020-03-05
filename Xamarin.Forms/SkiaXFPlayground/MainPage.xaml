@@ -25,6 +25,9 @@
                     </StackLayout>
                     <Button x:Name="AddImage" Text="+ Image" Clicked="AddImage_Clicked" />
                     <Button x:Name="RemoveImage" Text="- Image" Clicked="RemoveImage_Clicked" />
+                    <Button x:Name="ZoomIn" Text="+ Zoom" Clicked="ZoomIn_Clicked" />
+                    <Button x:Name="ZoomOut" Text="- Zoom" Clicked="ZoomOut_Clicked" />
+
                     <StackLayout Orientation="Horizontal">
                         <Label Text="FILTER QUALITY:" />
                         <Picker x:Name="QualityPicker" SelectedIndexChanged="Quality_SelectedIndexChanged">

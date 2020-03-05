@@ -26,35 +26,35 @@ namespace SkiaXFPlayground
         /// display scale factor of the current device (retina macbook = 2)
         /// </summary>
         double _deviceScaleFactor = 2;
-        double currentScale = 1;
-        double startScale = 1;
+        double _currentScale = 1;
+        double _startScale = 1;
+        double _lastScale = 0;
 
-        int resourceLimit = 10;
-        long resourceLimitBytes = 100000000;
+        int _resourceLimit = 1000;
+        long _resourceLimitBytes = 10240000000;
 
-        string logtext = "";
-        int imagesize = 7000;
+        int imagesize = 5000;
         int _padding = 20;
         int _numberOfImages = 0;
-        float dragX;
-        float dragY;
+        float _dragX;
+        float _dragY;
 
         float _lastX;
         float _lastY;
+        float _zoomFactor = 0.005f;
 
-        int imageCount = 5;
-        float matrixScale = 0.28f;
-        Stopwatch sw = Stopwatch.StartNew();
-        TimeSpan last;
-        Random rand = new Random();
+        Stopwatch _sw = Stopwatch.StartNew();
+        TimeSpan _last;
+        Random _rand = new Random();
 
-        int nResources;
-        long nResourceBytes;
-        int nCacheResources;
-        long nCacheResourcesBytes;
+        int _resources;
+        long _resourceBytes;
+        int _cacheResources;
+        long _cacheResourcesBytes;
         SKFilterQuality _quality;
         List<MyImage> _images;
         List<byte[]> _buffer;
+
         public MainPage()
         {
             InitializeComponent();
@@ -67,7 +67,7 @@ namespace SkiaXFPlayground
             SkiaView.EnableTouchEvents = true;
             SkiaView.Touch += SkiaView_Touch;
 
-            var assembly = typeof(MainPage).GetTypeInfo().Assembly; // you can replace "this.GetType()" with "typeof(MyType)", where MyType is any type in your assembly.
+            var assembly = typeof(MainPage).GetTypeInfo().Assembly;
             _buffer = new List<byte[]>();
             for (int i = 0; i < 24; i++)
             {
@@ -98,8 +98,6 @@ namespace SkiaXFPlayground
                 Image = im
             };
             img.Destination = new SKRect(x, y, x + imagesize, y + imagesize);
-            //_lastX = img.Destination.Right + _padding;
-            //_lastY = img.Destination.Top;
 
             LogLabel.Text = "image added ";
 
@@ -113,12 +111,12 @@ namespace SkiaXFPlayground
             switch (e.ActionType)
             {
                 case SkiaSharp.Views.Forms.SKTouchAction.Entered:
-                    dragX = e.Location.X;
-                    dragY = e.Location.Y;
+                    _dragX = e.Location.X;
+                    _dragY = e.Location.Y;
                     break;
                 case SkiaSharp.Views.Forms.SKTouchAction.Moved:
-                    _currentMatrix.TransX = dragX + e.Location.X;
-                    _currentMatrix.TransY = dragY + e.Location.Y;
+                    _currentMatrix.TransX = _dragX + e.Location.X;
+                    _currentMatrix.TransY = _dragY + e.Location.Y;
                     SkiaView.InvalidateSurface();
                     break;
                 case SkiaSharp.Views.Forms.SKTouchAction.Released:
@@ -128,20 +126,19 @@ namespace SkiaXFPlayground
             }
         }
 
-        double lastScale = 0;
         private void Pinch_PinchUpdated(object sender, PinchGestureUpdatedEventArgs e)
         {
 
             if (e.Status == GestureStatus.Started)
             {
-                startScale = lastScale;
+                _startScale = _lastScale;
             }
             else if (e.Status == Xamarin.Forms.GestureStatus.Running)
             {
-                currentScale += (e.Scale - 1) * startScale;
-                currentScale = Math.Max(0.003, currentScale);
-                _currentMatrix.ScaleX = (float)currentScale;
-                _currentMatrix.ScaleY = (float)currentScale;
+                _currentScale += (e.Scale - 1) * _startScale;
+                _currentScale = Math.Max(0.003, _currentScale);
+                _currentMatrix.ScaleX = (float)_currentScale;
+                _currentMatrix.ScaleY = (float)_currentScale;
                 SkiaView.InvalidateSurface();
             }
         }
@@ -151,15 +148,15 @@ namespace SkiaXFPlayground
             base.OnAppearing();
             if (SkiaView.GRContext != null)
             {
-                SkiaView.GRContext.SetResourceCacheLimits(200, 10240000000);
+                SkiaView.GRContext.SetResourceCacheLimits(_resourceLimit, _resourceLimitBytes);
             }
         }
 
         void Handle_PaintSurface(object sender, SkiaSharp.Views.Forms.SKPaintGLSurfaceEventArgs e)
         {
-            SkiaView.GRContext.GetResourceCacheLimits(out nResources, out nResourceBytes);
+            SkiaView.GRContext.GetResourceCacheLimits(out _resources, out _resourceBytes);
 
-            SkiaView.GRContext.GetResourceCacheUsage(out nCacheResources, out nCacheResourcesBytes);
+            SkiaView.GRContext.GetResourceCacheUsage(out _cacheResources, out _cacheResourcesBytes);
 
             e.Surface.Canvas.SetMatrix(_currentMatrix);
             e.Surface.Canvas.Clear(SKColors.LemonChiffon);
@@ -174,20 +171,20 @@ namespace SkiaXFPlayground
                     e.Surface.Canvas.DrawImage(img.Image, img.Destination, p);
 #endif
                 }
-                var c = sw.Elapsed;
-                var ts = c - last;
-                last = c;
+                var c = _sw.Elapsed;
+                var ts = c - _last;
+                _last = c;
 
                 var fps = 1.0 / (ts.TotalSeconds);
                 var fpsString = fps.ToString("00.00");
-                lastScale = e.Surface.Canvas.TotalMatrix.ScaleX;
+                _lastScale = e.Surface.Canvas.TotalMatrix.ScaleX;
                 e.Surface.Canvas.ResetMatrix();
                 p.FilterQuality = SKFilterQuality.High;
                 //e.Surface.Canvas.DrawText("FPS: " + fpsString, 100, 100, p);
                 FPSLabel.Text = fpsString;
                 ScaleLabel.Text = _currentMatrix.ScaleX.ToString();
-                UsageLabel.Text = nResourceBytes.ToPrettySize(3) + " | " + nCacheResourcesBytes.ToPrettySize(2);
-                NumberLabel.Text = nCacheResources.ToString() + " | " + nResources.ToString();
+                UsageLabel.Text = _resourceBytes.ToPrettySize(3) + " | " + _cacheResourcesBytes.ToPrettySize(2);
+                NumberLabel.Text = _cacheResources.ToString() + " | " + _resources.ToString();
 
                 //e.Surface.Canvas.DrawText("Resource Limits: \t" + nResources + " " + nResourceBytes.ToString("N"), 100, 190, p);
                 //e.Surface.Canvas.DrawText("Resource Usages: \t" + nCacheResources + " " + nCacheResourcesBytes.ToString("N"), 100, 280, p);
@@ -196,7 +193,7 @@ namespace SkiaXFPlayground
 
         void AddImage_Clicked(System.Object sender, System.EventArgs e)
         {
-            var index = rand.Next(0, _buffer.Count());
+            var index = _rand.Next(0, _buffer.Count());
             index = 13;
             var im = SKImage.FromEncodedData(_buffer.ElementAt(index)).ToTextureImage(SkiaView.GRContext);
 
@@ -204,14 +201,14 @@ namespace SkiaXFPlayground
             {
                 Image = im
             };
-            if (_numberOfImages % 10 == 0)
+            if (_numberOfImages % 8 == 0)
             {
                 _lastX = 0;
-                _lastY += imagesize + 10;
+                _lastY += imagesize + _padding;
             }
             else
             {
-                _lastX += imagesize + 10;
+                _lastX += imagesize + _padding;
             }
             img.Destination = new SKRect(_lastX, _lastY, _lastX + imagesize, _lastY + imagesize);
             _images.Add(img);
@@ -228,11 +225,11 @@ namespace SkiaXFPlayground
                 if (_numberOfImages % 5 == 0)
                 {
                     _lastX = 0;
-                    _lastY -= imagesize + 10;
+                    _lastY -= imagesize + _padding;
                 }
                 else
                 {
-                    _lastX -= imagesize + 10;
+                    _lastX -= imagesize + _padding;
                 }
             }
             SkiaView.InvalidateSurface();
@@ -256,6 +253,20 @@ namespace SkiaXFPlayground
                     break;
 
             }
+            SkiaView.InvalidateSurface();
+        }
+
+        void ZoomIn_Clicked(System.Object sender, System.EventArgs e)
+        {
+            _currentMatrix.ScaleX += _zoomFactor;
+            _currentMatrix.ScaleY += _zoomFactor;
+            SkiaView.InvalidateSurface();
+        }
+
+        void ZoomOut_Clicked(System.Object sender, System.EventArgs e)
+        {
+            _currentMatrix.ScaleX -= _zoomFactor;
+            _currentMatrix.ScaleY -= _zoomFactor;
             SkiaView.InvalidateSurface();
         }
     }
